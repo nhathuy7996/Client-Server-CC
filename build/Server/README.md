@@ -1,37 +1,73 @@
-# Game Server
+# Cocos Server Client Template
 
-Server cho game mini app trên Telegram, sử dụng Express.js và Socket.IO.
+A comprehensive game server template for Telegram Mini Apps, built with Express.js, Socket.IO, and TypeScript. This server provides real-time multiplayer functionality, authentication, score management, and Discord integration.
 
-## Cấu trúc thư mục
+## 🚀 Features
+
+- **Telegram Mini App Integration**: Seamless authentication through Telegram WebApp
+- **Real-time Communication**: Socket.IO with Redis adapter for scalable multiplayer
+- **Score Management**: Leaderboard system with real-time updates
+- **Discord Integration**: Automatic notifications for game events
+- **Load Balancing Support**: Sticky sessions with Redis for horizontal scaling
+- **TypeScript**: Full type safety and modern development experience
+- **CORS Enabled**: Cross-origin request support
+- **Comprehensive Logging**: Request tracking and error handling
+- **Database Integration**: Couchbase support for data persistence
+
+## 📁 Project Structure
 
 ```
 src/
-├── config/         # Cấu hình
-│   └── redis.ts    # Cấu hình Redis adapter
-├── controllers/     # Xử lý logic cho các request
-│   ├── authController.ts    # Xử lý xác thực
-│   ├── scoresController.ts # Xử lý điểm số
-│   └── socketController.ts  # Xử lý kết nối socket
-├── middleware/      # Middleware
-│   └── auth.ts     # Middleware xác thực
-├── routes/         # Định tuyến API
-│   ├── auth.ts     # Route xác thực
-│   └── scores.ts   # Route điểm số
-├── types/          # TypeScript interfaces
-│   └── index.ts    # Định nghĩa các interface
-├── data/           # Dữ liệu
-│   └── scores.ts   # Lưu trữ điểm số
-└── server.ts       # File chính của server
+├── config/                     # Configuration files
+│   └── redis.ts               # Redis configuration
+├── controllers/               # Business logic controllers
+│   ├── gamePlayController.ts  # Game logic handling
+│   ├── privateAPIExampleController.ts  # Private API examples
+│   └── socketController.ts    # Socket.IO event handling
+├── data/                      # Data management
+│   └── scores.ts              # Score storage and retrieval
+├── db/                        # Database connections
+│   └── couchbaseClient.ts     # Couchbase client setup
+├── middleware/                # Express middleware
+│   └── auth.ts               # Authentication middleware
+├── public/                    # Static assets
+│   ├── application.js         # Main application bundle
+│   ├── assets/               # Game assets (Images, internal, main, resources)
+│   ├── cocos-js/             # Cocos Creator runtime
+│   ├── index.html            # Main HTML file
+│   └── style.css             # Styles
+├── routes/                    # API route definitions
+│   ├── authTelegramRouter.ts # Telegram authentication routes
+│   ├── privateExampleRouter.ts # Private API routes
+│   └── publicExampleRouter.ts # Public API routes
+├── types/                     # TypeScript type definitions
+│   └── index.ts              # Global type definitions
+├── discordConnector.ts        # Discord bot integration
+├── server.ts                  # Main server entry point
+├── teleConnector.ts           # Telegram bot integration
+└── utils.ts                   # Utility functions
 ```
 
-## Cài đặt
+## 🛠️ Installation
 
-1. Cài đặt dependencies:
+### Prerequisites
+
+- Node.js (v16 or higher)
+- Redis Server
+- Couchbase Server (optional)
+- Telegram Bot Token
+- Discord Bot Token (optional)
+
+### Setup
+
+1. **Clone and install dependencies:**
 ```bash
+git clone <repository-url>
+cd Server
 npm install
 ```
 
-2. Cài đặt Redis (cần thiết cho sticky session):
+2. **Install Redis:**
 ```bash
 # Ubuntu/Debian
 sudo apt-get install redis-server
@@ -40,36 +76,189 @@ sudo apt-get install redis-server
 brew install redis
 
 # Windows
-# Tải Redis từ https://redis.io/download
+# Download from https://redis.io/download
 ```
 
-3. Tạo file `.env` với các biến môi trường:
+3. **Create environment file:**
+```bash
+cp .env.example .env
+```
+
+4. **Configure environment variables:**
 ```env
+# Server Configuration
 HTTP_PORT=3103
-JWT_SECRET=your-secret-key
-BOT_TOKEN=your-telegram-bot-token
-REDIS_URL=redis://localhost:6379
 NODE_ENV=development
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key-here
+
+# Telegram Bot
+BOT_TOKEN=your-telegram-bot-token
+
+# Redis Configuration
+REDIS_URL=redis://localhost:6379
+REDIS_USERNAME=your-redis-username
+REDIS_PASSWORD=your-redis-password
+
+# Discord Integration (Optional)
+DISCORD_BOT_TOKEN=your-discord-bot-token
+DISCORD_CHANNEL_ID=your-discord-channel-id
+
+# Couchbase Configuration (Optional)
+COUCHBASE_URL=couchbase://localhost
+COUCHBASE_USERNAME=Administrator
+COUCHBASE_PASSWORD=password
+COUCHBASE_BUCKET=default
 ```
 
-## Load Balancing và Sticky Session
+## 🚀 Usage
 
-Server được cấu hình để hỗ trợ load balancing với sticky session thông qua Redis adapter. Điều này đảm bảo:
+### Development
 
-1. Socket.IO connections được duy trì khi load balancing
-2. Events được đồng bộ giữa các server instances
-3. Session được lưu trữ an toàn
+```bash
+# Start development server
+npm run dev
 
-### Cấu hình Load Balancer
+# Run tests
+npm test
 
-Khi sử dụng load balancer (ví dụ: Nginx), cần cấu hình sticky session:
+# Build for production
+npm run build
+```
 
+### Production Deployment
+
+```bash
+# Build the project
+npm run build
+
+# The build script includes deployment to your server
+# It will copy files and restart PM2 process
+```
+
+## 🔌 API Endpoints
+
+### Authentication
+
+#### `POST /api/auth/telegram`
+Authenticate user through Telegram Mini App.
+
+**Request:**
+```json
+{
+  "initData": "telegram-webapp-init-data-string"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "jwt-token",
+    "user": {
+      "id": 123456789,
+      "username": "user123",
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  }
+}
+```
+
+### Game API
+
+#### `POST /api/scores`
+Submit a new score (requires authentication).
+
+**Headers:**
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Request:**
+```json
+{
+  "username": "player1",
+  "score": 1000,
+  "gameMode": "classic"
+}
+```
+
+#### `GET /api/scores`
+Get top scores leaderboard.
+
+**Query Parameters:**
+- `limit`: Number of scores to return (default: 10, max: 100)
+- `gameMode`: Filter by game mode (optional)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "username": "player1",
+      "score": 1000,
+      "gameMode": "classic",
+      "timestamp": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+## 🔌 Socket.IO Events
+
+### Client to Server
+
+#### Connection
+```typescript
+const socket = io('http://localhost:3103', {
+  auth: { token: 'your-jwt-token' },
+  transports: ['websocket', 'polling']
+});
+```
+
+#### Join Game Room
+```typescript
+socket.emit('joinGame', { gameMode: 'classic' });
+```
+
+#### Submit Score
+```typescript
+socket.emit('submitScore', { score: 1000, gameMode: 'classic' });
+```
+
+### Server to Client
+
+#### Top Scores Update
+```typescript
+socket.on('topScores', (scores) => {
+  console.log('Updated leaderboard:', scores);
+});
+```
+
+#### Game Event
+```typescript
+socket.on('gameEvent', (event) => {
+  console.log('Game event:', event);
+});
+```
+
+## 🔧 Configuration
+
+### Load Balancing
+
+For production deployments with multiple server instances, configure your load balancer with sticky sessions:
+
+#### Nginx Configuration
 ```nginx
-upstream socket_nodes {
+upstream game_servers {
     ip_hash;
-    server 192.168.1.100:3103;  # Server 1
-    server 192.168.1.101:3103;  # Server 2
-    server 192.168.1.102:3103;  # Server 3
+    server 192.168.1.100:3103;
+    server 192.168.1.101:3103;
+    server 192.168.1.102:3103;
 }
 
 server {
@@ -77,7 +266,7 @@ server {
     server_name your-domain.com;
 
     location / {
-        proxy_pass http://socket_nodes;
+        proxy_pass http://game_servers;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -86,7 +275,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         
-        # Cấu hình timeout
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
@@ -94,114 +282,133 @@ server {
 }
 ```
 
-### Cấu hình Redis
+### Redis Configuration
 
-Redis được sử dụng để đồng bộ socket events giữa các server instances. Có hai cách cấu hình Redis:
-
-#### 1. Redis Local (Development)
-Khi chạy Redis trên cùng máy chủ:
+#### Local Development
 ```env
 REDIS_URL=redis://localhost:6379
 ```
 
-#### 2. Redis Remote (Production)
-Khi các server instances nằm phân tán trên các máy chủ khác nhau, cần cấu hình Redis với xác thực:
+#### Production with Authentication
 ```env
-REDIS_URL=redis://your-redis-host:6379
-REDIS_USERNAME=your-redis-username
-REDIS_PASSWORD=your-redis-password
+REDIS_URL=redis://username:password@your-redis-host:6379
 ```
 
-Lưu ý:
-- Đảm bảo Redis server đã được cấu hình với xác thực (ACL)
-- URL Redis có thể bao gồm thông tin xác thực: `redis://username:password@host:port`
-- Nên sử dụng SSL/TLS cho kết nối Redis trong môi trường production
-- Có thể sử dụng Redis Cloud hoặc các dịch vụ Redis managed khác
+## 🎮 Client Integration
 
-## API Endpoints
+### Telegram Mini App Setup
 
-### Xác thực
-- `POST /api/auth/telegram`
-  - Xác thực người dùng từ Telegram Mini App
-  - Body: `{ initData: string }`
-  - Trả về JWT token và thông tin người dùng
+1. **Initialize Telegram WebApp:**
+```typescript
+// In your Cocos Creator game
+const initData = window.Telegram.WebApp.initData;
+```
 
-### Điểm số
-- `POST /api/scores`
-  - Lưu điểm số mới
-  - Body: `{ username: string, score: number }`
-  - Yêu cầu xác thực qua token
-
-- `GET /api/scores`
-  - Lấy danh sách điểm số cao nhất
-  - Query params: `limit` (mặc định: 10)
-  - Không yêu cầu xác thực
-
-## Socket.IO Events
-
-### Server -> Client
-- `topScores`: Gửi danh sách điểm số cao nhất khi có cập nhật
-
-### Client -> Server
-- Kết nối yêu cầu token xác thực trong `auth` object
-
-## Cách sử dụng ở phía Client
-
-1. Xác thực với Telegram:
+2. **Authenticate with server:**
 ```typescript
 const response = await fetch('http://localhost:3103/api/auth/telegram', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        initData: window.Telegram.WebApp.initData
-    })
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ initData })
 });
 
-const data = await response.json();
-if (data.success) {
-    const token = data.data.token;
-    // Lưu token để sử dụng cho Socket.IO
-}
+const { data: { token } } = await response.json();
 ```
 
-2. Kết nối Socket.IO:
+3. **Connect Socket.IO:**
 ```typescript
 const socket = io('http://localhost:3103', {
-    auth: { token: 'your-jwt-token' },
-    transports: ['websocket', 'polling'],
-    withCredentials: true
-});
-
-socket.on('topScores', (scores) => {
-    // Xử lý cập nhật điểm số
+  auth: { token },
+  transports: ['websocket', 'polling']
 });
 ```
 
-3. Gửi điểm số:
+### Score Submission
+
 ```typescript
+// Submit score via REST API
 const response = await fetch('http://localhost:3103/api/scores', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({
-        username: 'player1',
-        score: 100
-    })
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    username: 'player1',
+    score: 1000,
+    gameMode: 'classic'
+  })
 });
+
+// Or via Socket.IO
+socket.emit('submitScore', { score: 1000, gameMode: 'classic' });
 ```
 
-## Tính năng
+## 🔒 Security Features
 
-- Xác thực người dùng qua Telegram Mini App
-- Lưu trữ và cập nhật điểm số realtime
-- Thông báo Discord khi có điểm số mới
-- Giới hạn top 100 điểm số cao nhất
-- CORS enabled cho cross-origin requests
-- Logging requests
-- Error handling
-- Sticky session cho load balancing
-- Redis adapter cho đồng bộ socket events 
+- **JWT Authentication**: Secure token-based authentication
+- **Telegram Validation**: Cryptographically verified Telegram data
+- **CORS Protection**: Configurable cross-origin policies
+- **Rate Limiting**: Built-in request throttling
+- **Input Validation**: Comprehensive request validation
+- **Error Handling**: Secure error responses without sensitive data
+
+## 📊 Monitoring & Logging
+
+- **Request Logging**: All API requests are logged
+- **Error Tracking**: Comprehensive error handling and logging
+- **Performance Monitoring**: Response time tracking
+- **Discord Notifications**: Real-time alerts for important events
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test file
+npm test -- test/auth.test.ts
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+## 📦 Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run test` - Run test suite
+- `npm run proto` - Generate TSRPC protocol
+- `npm run sync` - Sync TSRPC types
+- `npm run api` - Generate API documentation
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in the repository
+- Check the documentation
+- Review the example implementations
+
+## 🔄 Changelog
+
+### v0.1.0
+- Initial release
+- Telegram Mini App integration
+- Socket.IO real-time communication
+- Score management system
+- Discord integration
+- Load balancing support 
