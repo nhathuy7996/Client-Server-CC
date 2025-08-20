@@ -29,12 +29,11 @@ Project này là một template cơ bản cho việc phát triển game trên Co
 - Tùy chỉnh thời gian quay và số vòng
 
 ### 🎮 Game Management
-- Quản lý trạng thái game (Ready, Playing, Pause, Over)
 - Responsive design với scaling tự động
 - Hệ thống config tập trung
 
 ## 📁 Cấu trúc Project
-
+### Client
 ```
 assets/00_GAME/
 ├── Scenes/
@@ -53,6 +52,12 @@ assets/00_GAME/
 │   └── utils/
 │       ├── Singleton.ts        # Pattern Singleton
 │       └── utils.ts            # Utility functions
+```
+
+### Server
+```
+build/Server/src/public                 --> Client sẽ được CC build vào đây
+build-templates/web-mobiles/index.ejs   --> template build sẽ được sửa ở đây
 ```
 
 ## 🛠️ Cài đặt và Chạy
