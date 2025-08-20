@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="utf-8">
+
+  <title>Garden</title>
+
+  <!--http://www.html5rocks.com/en/mobile/mobifying/-->
+  <meta name="viewport"
+    content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true" />
+
+  <!--https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- force webkit on 360 -->
+  <meta name="renderer" content="webkit" />
+  <meta name="force-rendering" content="webkit" />
+  <!-- force edge on IE -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- force full screen on some browser -->
+  <meta name="full-screen" content="yes" />
+  <meta name="x5-fullscreen" content="true" />
+  <meta name="360-fullscreen" content="true" />
+
+  <!--fix fireball/issues/3568 -->
+  <!--<meta name="browsermode" content="application">-->
+  <meta name="x5-page-mode" content="app">
+
+  <!--<link rel="apple-touch-icon" href=".png" />-->
+  <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
+
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <script type="text/javascript">
+    atOptions = {
+      'key' : 'd4402d91185234a146447ebe1474b9c2',
+      'format' : 'iframe',
+      'height' : 250,
+      'width' : 300,
+      'params' : {}
+    };
+  </script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <script type="text/javascript" src="//www.highperformanceformat.com/d4402d91185234a146447ebe1474b9c2/invoke.js"></script>
+  <script type='text/javascript' src='//pl25756250.profitablecpmrate.com/fb/12/1b/fb121b0f696649fa87242ecc02909787.js'></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+    import { logEvent } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+    import { getAuth,GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzEpw21G9tsglgUmy6Y2tV3mdoM3IyUQA",
+      authDomain: "shadow-javelin.firebaseapp.com",
+      projectId: "shadow-javelin",
+      storageBucket: "shadow-javelin.firebasestorage.app",
+      messagingSenderId: "783830359486",
+      appId: "1:783830359486:web:4dba14f1476f1a96ef6def"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const analytics = getAnalytics(app);
+    window.firebaseApp = app;
+    window.firebaseAnalytics = analytics;
+    window.logFirebaseEvent = function (eventName, params = {}) {
+      if (analytics) {
+        logEvent(analytics, eventName, params);
+        console.log(`Event logged: ${eventName}`, params);
+      } else {
+        console.error("Firebase Analytics is not initialized or logEvent is not available.");
+      }
+    };
+    const googleProvider = new GoogleAuthProvider();
+
+    window.signInWithGoogle = async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        console.log('User signed in with Google:', user);
+        return user; // Trả về data của user nếu cần
+      } catch (error) {
+        console.error('Error signing in with Google:', error);
+        throw error; // Ném lỗi để xử lý bên ngoài nếu cần
+      }
+    };
+
+  </script>
+</head>
+
+<body>
+  <div id="GameDiv" cc_exact_fit_screen="true">
+    <div id="Cocos3dGameContainer">
+      <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>
+    </div>
+  </div>
+
+
+  <!-- Polyfills bundle. -->
+
+  <script src="src/polyfills.bundle.js" charset="utf-8"> </script>
+
+
+  <!-- SystemJS support. -->
+  <script src="src/system.bundle.js" charset="utf-8"> </script>
+
+  <!-- Import map -->
+  <script src="src/import-map.json" type="systemjs-importmap" charset="utf-8"> </script>
+
+  <script>
+    System.import('./index.js').catch(function (err) { console.error(err); })
+  </script>
+
+</body>
+
+</html>

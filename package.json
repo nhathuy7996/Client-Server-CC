@@ -1,0 +1,13 @@
+{
+  "name": "TomatoGarden",
+  "uuid": "8083c15f-7c0e-4e22-9597-e0f0a2a3927c",
+  "creator": {
+    "version": "3.8.7"
+  },
+  "_sourceId": "2a143e49-3b74-4460-a7fe-056f6b491c35",
+  "_storeId": "0fffef94870449223211bfcba5971657",
+  "dependencies": {
+    "socket.io-client": "^4.7.5"
+  },
+  "description": "Template for basic client - server(nodejs socket io)"
+}
