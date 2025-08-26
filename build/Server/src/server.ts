@@ -6,8 +6,7 @@ import { Server } from 'socket.io';
 import { sendDiscordNotification } from './discordConnector';
 import { botTele, sendMessage as sendTeleMessage } from './teleConnector';
 import { connectToCouchbase, queryData } from "./db/couchbaseClient";
-import { authSocketToken } from './middleware/auth';
-import { authAPIToken } from './middleware/auth';
+import { authSocketToken, authAPIToken } from './middleware/auth';
 import { handleSocketConnection } from './controllers/socketController';
 import authRoutes from './routes/authTelegramRouter';
 import privateExampleRouter from "./routes/privateExampleRouter";
@@ -15,8 +14,8 @@ import exampleRouter from './routes/publicExampleRouter';
 import { createRedisAdapter } from './config/redis'; 
 import fetch from 'node-fetch'; 
 import { handleGamePlayEvents } from "./controllers/gamePlayController";
-import schedule from 'node-schedule';
-
+import schedule from 'node-schedule'; 
+// import { io } from "socket.io-client"; // Commented out to avoid conflict with Socket.IO server
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +30,7 @@ const httpServer = createServer(app);
 
 // Khởi tạo Socket.IO với SSL
 const initSocketIO = async () => {
+    console.log('🚀 Initializing Socket.IO server...');
     const io = new Server(httpServer, {
         cors: {
             origin: "*",
@@ -55,19 +55,26 @@ const initSocketIO = async () => {
 
     // Socket.IO error handling
     io.on('connect_error', (error) => {
-        console.error('Socket.IO connection error:', error);
+        console.error('❌ Socket.IO connection error:', error);
     });
 
     io.on('error', (error) => {
-        console.error('Socket.IO error:', error);
+        console.error('❌ Socket.IO error:', error);
+    });
+
+    // Handle authentication errors
+    io.engine.on('connection_error', (err) => {
+        console.error('❌ Socket.IO engine connection error:', err);
     });
 
     // Socket.IO authentication middleware
+    console.log('🔧 Setting up Socket.IO authentication middleware');
     io.use(authSocketToken);
 
     // Socket.IO connection handling
+    console.log('🔧 Setting up Socket.IO connection handler');
     io.on('connection', (socket) => {
-        console.log('Client connected:', socket.id, 'User:', socket.data.user);
+        console.log('✅ Client connected successfully:', socket.id, 'User:', socket.data.user);
         
         
         handleSocketConnection(socket);
@@ -79,9 +86,10 @@ const initSocketIO = async () => {
 
         socket.on('error', (error) => {
             console.error('Socket error:', error);
-        });
+        }); 
     });
 
+    console.log('✅ Socket.IO server initialized successfully');
     return io;
 };
 
@@ -156,6 +164,31 @@ try {
     console.error('Failed to start server:', error);
     process.exit(1);
 }
+
+// Graceful shutdown handling
+const gracefulShutdown = (signal: string) => {
+    console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+    
+    // Close HTTP server
+    if (httpServer) {
+        httpServer.close(() => {
+            console.log('✅ HTTP server closed');
+            process.exit(0);
+        });
+        
+        // Force exit after 10 seconds
+        setTimeout(() => {
+            console.error('❌ Could not close connections in time, forcefully shutting down');
+            process.exit(1);
+        }, 10000);
+    }
+};
+
+// Handle shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+
 
 //connectToCouchbase();
 
