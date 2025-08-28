@@ -59,7 +59,7 @@ export class gameMain extends Component {
             NetworkingPeer.connectToWebSocket();
 
             //Load avatar
-            this.loadAvatar(`${Config.host}/proxy-image?url=https://t.me/i/userpic/320/zs6lMJZWyS_NpA1AyVfkFZ5TAXZNlBOrV8VjuVbvsaA.svg`);
+            this.loadImage(`${Config.host}/proxy-image?url=https://t.me/i/userpic/320/zs6lMJZWyS_NpA1AyVfkFZ5TAXZNlBOrV8VjuVbvsaA.svg`);
         }
 
     }
@@ -68,36 +68,40 @@ export class gameMain extends Component {
         this.GetUserTeleData();
     }
 
-    /*
+   /*
     * Load avatar from url
     * use can load avatar throught proxy cause some platform not allow get image from url directly
     * example: https://nhathuy7996.art:3003/proxy-image?url=https://t.me/i/userpic/320/zs6lMJZWyS_NpA1AyVfkFZ5TAXZNlBOrV8VjuVbvsaA.svg
     * @param imageUrl: string
     */
-    async loadAvatar(imageUrl: string) {
+    async loadImage(imageUrl: string): Promise<SpriteFrame> {
         try {
             const response = await fetch(imageUrl);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
 
-            assetManager.loadRemote<ImageAsset>(blobUrl, { ext: '.png' }, (err, imageAsset) => {
-                if (err || !imageAsset || imageAsset.width === 0) {
-                    console.error("❌ Ảnh tải về nhưng không hợp lệ!", err);
-                    return;
-                }
+            return new Promise<SpriteFrame>((resolve, reject) => {
+                assetManager.loadRemote<ImageAsset>(blobUrl, { ext: '.png' }, (err, imageAsset) => {
+                    if (err || !imageAsset || imageAsset.width === 0) {
+                        console.error("❌ Ảnh tải về nhưng không hợp lệ!", err);
+                        reject(err || new Error("Ảnh không hợp lệ"));
+                        return;
+                    }
 
-                console.log("📸 Ảnh đã tải:", imageAsset.width, imageAsset.height);
+                    console.log("📸 Ảnh đã tải:", imageAsset.width, imageAsset.height);
+                    
+                    const texture = new Texture2D();
+                    texture.image = imageAsset;
 
-                const texture = new Texture2D();
-                texture.image = imageAsset;
+                    const spriteFrame = new SpriteFrame();
+                    spriteFrame.texture = texture; 
 
-                Config.avatar = new SpriteFrame();
-                Config.avatar.texture = texture;
-
-                //this.avatarImage.spriteFrame = Config.avatar;
+                    resolve(spriteFrame);
+                });
             });
         } catch (error) {
             console.error("❌ Lỗi tải ảnh:", error);
+            throw error;
         }
     }
  
