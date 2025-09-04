@@ -33,7 +33,7 @@ export class NetworkingPeer extends Singleton {
       console.log(`socket not connected, Delay 1s and try again! ❌`);
       setTimeout(() => {
         this.AddListener(EventMap, callback);
-      }, 1000);
+      }, 10);
       return;
     }
     this.socket.on(EventMap, callback);
